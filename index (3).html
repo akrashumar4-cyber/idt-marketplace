@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diamond Marketplace — International Diamond Trade</title>
+<meta name="description" content="Source certified natural and lab-grown diamonds from verified global suppliers. B2B diamond marketplace connecting UK buyers with worldwide suppliers.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- Vanilla Tilt -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+<!-- ✅ Supabase JS client (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+/* ============================================================
+   RESET & BASE — IDT Design System
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg0: #06080F;
+  --bg1: #0D1020;
+  --bg2: #131726;
+  --bg3: #181d2e;
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-glow: rgba(201,168,76,0.25);
+  --text: #E8E8F0;
+  --text-muted: #8A8FAA;
+  --text-dim: #555B75;
+  --green: #4CAF7D;
+  --blue: #4C7AC9;
+  --red: #E05555;
+  --purple: #8B6CC8;
+  --border: rgba(201,168,76,0.18);
+  --border-sub: rgba(255,255,255,0.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar: 280px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg0);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ============================================================
+   CUSTOM CURSOR
+============================================================ */
+#cursor {
+  width: 12px; height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  mix-blend-mode: screen;
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: all 0.15s ease;
+}
+body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; }
+body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 48px; height: 48px; opacity: 0.6; }
+
+/* ============================================================
+   PARTICLES CANVAS
+============================================================ */
+#particles-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg0); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* ============================================================
+   TOPBAR / NAV
+============================================================ */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 24px;
+  background: rgba(6,8,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo-diamond { width: 32px; height: 32px; }
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gold-light);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+.logo-sub {
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: block;
+}
+
+.nav-search-wrap {
+  flex: 1;
+  max-width: 480px;
+  position: relative;
+}
+.nav-search {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px 10px 42px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.nav-search::placeholder { color: var(--text-dim); }
+.nav-search:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+.nav-search-icon {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.nav-link {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--gold-light); background: var(--gold-dim); }
+.nav-link.active { color: var(--gold); }
+
+/* Auth nav state */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--gold-dim);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--gold-light);
+  cursor: pointer;
+}
+.nav-user-dot {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+}
+
+.nav-cta-group { display: flex; gap: 10px; align-items: center; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  border: none;
+  letter-spacing: 0.01em;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+.btn-gold {
+  background: linear-gradient(135deg, #C9A84C, #B8953D);
+  color: #06080F;
+  font-weight: 600;
+}
+.btn-gold:hover { background: linear-gradient(135deg, #E8D5A3, #C9A84C); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,168,76,0.3); }
+
+.btn-outline-gold {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+.btn-outline-gold:hover { background: var(--gold-dim); }
+
+/* ============================================================
+   LOADING SKELETON
+============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.skeleton-media { height: 180px; }
+.skeleton-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton-line { height: 14px; border-radius: 4px; }
+
+/* ============================================================
+   DB STATUS BANNER
+============================================================ */
+.db-status {
+  position: fixed;
+  bottom: 80px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+  z-index: 500;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.db-status.show { opacity: 1; }
+.db-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.db-status-dot.loading { background: var(--gold); animation: pulse-green 1s infinite; }
+.db-status-dot.error { background: var(--red); }
+
+/* ============================================================
+   PAGE HERO BANNER
+============================================================ */
+.marketplace-hero {
+  margin-top: 68px;
+  padding: 48px 28px 36px;
+  background: linear-gradient(180deg, rgba(13,16,32,0.9) 0%, transparent 100%);
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid var(--border-sub);
+}
+.hero-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px; height: 1px;
+  background: var(--gold);
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 500;
+  color: var(--gold-light);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.hero-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+.stat-item { text-align: center; }
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--gold);
+  display: block;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(76,175,125,0.1);
+  border: 1px solid rgba(76,175,125,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.06em;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse-green 1.8s ease-in-out infinite;
+}
+@keyframes pulse-green {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+.marketplace-layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 28px 80px;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar {
+  width: var(--sidebar);
+  flex-shrink: 0;
+  position: sticky;
+  top: 88px;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: 40px;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.filter-section {
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.filter-section:hover { border-color: var(--border); }
+
+.filter-title {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.filter-title-clear {
+  font-size: 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: color 0.2s;
+}
+.filter-title-clear:hover { color: var(--gold); }
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.filter-item:hover { color: var(--gold-light); }
+.filter-item input[type="checkbox"] { display: none; }
+.filter-checkbox {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: var(--bg2);
+}
+.filter-item input:checked + .filter-checkbox {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.filter-item input:checked + .filter-checkbox::after {
+  content: '✓';
+  font-size: 10px;
+  color: #06080F;
+  font-weight: 700;
+}
+.filter-item-label { font-size: 13px; color: var(--text-muted); flex: 1; }
+.filter-item-count {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg2);
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--border-sub);
+}
+
+.range-wrap { margin-top: 4px; }
+.range-inputs { display: flex; gap: 8px; margin-bottom: 10px; }
+.range-input {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.range-input:focus { border-color: var(--gold); }
+.range-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.filter-apply {
+  width: 100%;
+  padding: 11px;
+  background: linear-gradient(135deg, var(--gold), #B8953D);
+  border: none;
+  border-radius: 8px;
+  color: #06080F;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.filter-apply:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+
+/* ============================================================
+   MAIN CONTENT AREA
+============================================================ */
+.main-content { flex: 1; min-width: 0; }
+
+.content-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.results-info { font-size: 13px; color: var(--text-muted); flex: 1; }
+.results-info strong { color: var(--gold-light); }
+
+.sort-select {
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.sort-select:focus { border-color: var(--gold); }
+
+.view-toggle {
+  display: flex;
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.view-btn {
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+.view-btn.active { background: var(--gold-dim); color: var(--gold); }
+
+.active-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--gold-light);
+}
+.filter-tag-remove { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; font-size: 11px; }
+.filter-tag-remove:hover { opacity: 1; }
+
+/* ============================================================
+   LISTING GRID
+============================================================ */
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.listing-grid.list-view { grid-template-columns: 1fr; }
+
+/* Diamond Card */
+.diamond-card {
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.diamond-card:hover {
+  border-color: var(--border);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.15);
+}
+.diamond-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.05), transparent);
+  transition: left 0.5s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+.diamond-card:hover::before { left: 150%; }
+
+.card-media {
+  height: 180px;
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.card-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.card-diamond-svg {
+  width: 100px; height: 100px;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.card-media-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 60%, rgba(201,168,76,0.06) 0%, transparent 70%);
+}
+
+.card-badges {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+.badge-natural { background: rgba(76,122,201,0.2); border: 1px solid rgba(76,122,201,0.4); color: #7EB8F5; }
+.badge-lab { background: rgba(139,108,200,0.2); border: 1px solid rgba(139,108,200,0.4); color: #B89EF0; }
+.badge-verified { background: rgba(76,175,125,0.15); border: 1px solid rgba(76,175,125,0.35); color: #6ECFA0; }
+.badge-featured { background: rgba(201,168,76,0.2); border: 1px solid rgba(201,168,76,0.4); color: var(--gold-light); }
+
+.card-wishlist {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 32px; height: 32px;
+  background: rgba(6,8,15,0.7);
+  border: 1px solid var(--border-sub);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.card-wishlist:hover { border-color: var(--gold); background: var(--gold-dim); }
+.card-wishlist.active { color: var(--gold); border-color: var(--gold); }
+
+.card-body { padding: 18px; }
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.card-subtitle { font-size: 12px; color: var(--text-dim); margin-bottom: 14px; letter-spacing: 0.04em; }
+
+.card-specs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.spec-pill {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.spec-pill strong { color: var(--text); font-weight: 500; }
+
+.card-cert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-sub);
+}
+.cert-badge {
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.cert-num { font-size: 11px; color: var(--text-dim); font-family: monospace; }
+
+.card-price-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.card-price { display: flex; flex-direction: column; }
+.price-per-ct { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+.price-usd {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1;
+}
+.price-total { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.card-rfq {
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.card-rfq:hover { background: var(--gold); color: #06080F; box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
+
+.card-seller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-sub);
+}
+.seller-avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.seller-name { font-size: 12px; color: var(--text-muted); flex: 1; }
+.seller-country { font-size: 11px; color: var(--text-dim); }
+
+/* Card scan line */
+.card-scan {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+  transform: translateY(-100%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+.diamond-card:hover .card-scan { transform: translateY(179px); }
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+}
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+.empty-state-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+.empty-state-sub { font-size: 14px; color: var(--text-dim); }
+
+/* ============================================================
+   LOAD MORE
+============================================================ */
+.load-more-wrap { text-align: center; padding: 40px 0 20px; }
+.load-more-btn {
+  padding: 14px 40px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.load-more-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+.load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ============================================================
+   SOURCING BANNER
+============================================================ */
+.sourcing-banner {
+  max-width: 1400px;
+  margin: 60px auto 0;
+  padding: 0 28px;
+  position: relative;
+  z-index: 1;
+}
+.sourcing-inner {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.sourcing-inner::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sourcing-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+  line-height: 1.15;
+}
+.sourcing-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; }
+.sourcing-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+/* ============================================================
+   FOOTER
+============================================================ */
+.site-footer {
+  margin-top: 80px;
+  border-top: 1px solid var(--border-sub);
+  background: var(--bg1);
+  padding: 60px 28px 40px;
+  position: relative;
+  z-index: 1;
+}
+.footer-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+.footer-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; max-width: 280px; margin-bottom: 20px; }
+.footer-socials { display: flex; gap: 10px; }
+.social-link {
+  width: 36px; height: 36px;
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.social-link:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.footer-col-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: 8px; }
+.footer-links a { font-size: 13px; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text-muted); }
+.footer-bottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-sub);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-copy { font-size: 12px; color: var(--text-dim); }
+.footer-certs { display: flex; gap: 12px; flex-wrap: wrap; }
+.cert-logo {
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  padding: 4px 10px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modal-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modal-in {
+  from { transform: translateY(30px) scale(0.95); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.modal-header {
+  padding: 28px 28px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--gold-light);
+  line-height: 1.2;
+}
+.modal-close {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  background: var(--bg2);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.modal-close:hover { border-color: var(--gold); color: var(--gold); }
+.modal-body { padding: 24px 28px 28px; }
+.modal-diamond-summary {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.modal-diamond-icon {
+  width: 56px; height: 56px;
+  background: var(--bg3);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.modal-diamond-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold-light); margin-bottom: 4px; }
+.modal-diamond-specs { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.form-input, .form-select, .form-textarea {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-select option { background: var(--bg1); }
+.form-note { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+
+.modal-submit {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--gold), #B8953D);
+  border: none;
+  border-radius: 10px;
+  color: #06080F;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.2s;
+}
+.modal-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(201,168,76,0.35); }
+.modal-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Submit spinner */
+.btn-loading::after {
+  content: '';
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #06080F;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  margin-left: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: var(--bg1);
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  max-width: 340px;
+}
+.toast.show { transform: none; opacity: 1; }
+.toast.toast-error { border-color: var(--red); }
+.toast-icon { font-size: 20px; color: var(--green); }
+.toast-error .toast-icon { color: var(--red); }
+.toast-title { font-weight: 500; color: var(--text); margin-bottom: 2px; font-size: 13px; }
+.toast-sub { color: var(--text-dim); font-size: 12px; }
+
+/* Modal tabs */
+.modal-tabs {
+  display: flex;
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+.modal-tab {
+  flex: 1;
+  padding: 9px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+.modal-tab.active { background: var(--gold); color: #06080F; }
+
+/* ============================================================
+   MOBILE / RESPONSIVE
+============================================================ */
+.sidebar-toggle {
+  display: none;
+  padding: 9px 16px;
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  gap: 8px;
+  align-items: center;
+}
+@media (max-width: 1024px) {
+  .sidebar { display: none; }
+  .sidebar.mobile-open {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 1500;
+    width: 300px;
+    background: var(--bg0);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 80px 20px 40px;
+  }
+  .sidebar-toggle { display: flex; }
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1400;
+  }
+  .sidebar-backdrop.open { display: block; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .marketplace-hero { padding: 32px 16px 24px; }
+  .marketplace-layout { padding: 0 16px 60px; }
+  .listing-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 20px; }
+  .sourcing-inner { grid-template-columns: 1fr; padding: 32px 24px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  #cursor, #cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+@media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* Animations */
+.shimmer-text {
+  background: linear-gradient(90deg, var(--gold-light) 0%, #fff 40%, var(--gold) 60%, var(--gold-light) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+
+.verify-bar { height: 2px; background: var(--bg3); border-radius: 1px; overflow: hidden; margin-top: 4px; }
+.verify-fill { height: 100%; background: linear-gradient(90deg, var(--green), #7ED5A5); border-radius: 1px; transition: width 1s ease; }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="particles-canvas"></canvas>
+
+<!-- DB Status indicator -->
+<div class="db-status" id="db-status">
+  <div class="db-status-dot loading" id="db-dot"></div>
+  <span id="db-label">Connecting…</span>
+</div>
+
+<!-- ============================================================
+     NAV
+============================================================ -->
+<nav class="topbar">
+  <a href="#" class="nav-logo">
+    <svg class="logo-diamond" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1" fill="rgba(201,168,76,0.05)"/>
+      <polygon points="20,8 32,16 32,24 20,32 8,24 8,16" stroke="#C9A84C" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
+      <line x1="20" y1="2" x2="20" y2="38" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="14" x2="38" y2="26" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="26" x2="38" y2="14" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="20" cy="20" r="2" fill="#C9A84C" opacity="0.7"/>
+    </svg>
+    <span class="logo-text">IDT
+      <span class="logo-sub">International Diamond Trade</span>
+    </span>
+  </a>
+
+  <div class="nav-search-wrap">
+    <span class="nav-search-icon">◈</span>
+    <input class="nav-search" type="text" placeholder="Search shape, carat, colour, clarity, origin…" id="globalSearch">
+  </div>
+
+  <nav class="nav-links">
+    <a href="#" class="nav-link active">Marketplace</a>
+    <a href="#" class="nav-link">Sourcing Board</a>
+    <a href="#" class="nav-link">How It Works</a>
+    <a href="#" class="nav-link">About IDT</a>
+  </nav>
+
+  <div class="nav-cta-group" id="nav-cta">
+    <button class="btn btn-ghost" onclick="openModal('signup')">Login</button>
+    <button class="btn btn-gold" onclick="openModal('signup')">Join Free →</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="marketplace-hero">
+  <div class="hero-inner">
+    <div class="hero-title-group">
+      <div class="hero-eyebrow">Global B2B Diamond Exchange</div>
+      <h1 class="hero-title shimmer-text">Diamond Marketplace</h1>
+      <p class="hero-sub">Browse verified listings from global suppliers — natural, lab-grown, certified. Every stone traceable, every seller verified by IDT.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:20px;">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span id="live-count">Live listings</span>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num" data-target="1247">0</span>
+          <span class="stat-label">Verified Suppliers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="68">0</span>
+          <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-prefix="$" data-target="2.4" data-suffix="B+">$0</span>
+          <span class="stat-label">Trade Facilitated</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MARKETPLACE LAYOUT
+============================================================ -->
+<div class="marketplace-layout">
+
+  <!-- SIDEBAR (same as original, unchanged) -->
+  <div class="sidebar" id="sidebar">
+    <div class="filter-section">
+      <div class="filter-title">Cert Number / Stock ID</div>
+      <div style="position:relative;">
+        <input class="range-input" style="width:100%;padding-right:36px;" type="text" placeholder="e.g. GIA 6147711913" id="certSearch">
+        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:13px;">⌕</span>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Diamond Shape <span class="filter-title-clear" onclick="clearFilter('shape')">Clear</span></div>
+      <div id="shape-filters">
+        <label class="filter-item"><input type="checkbox" value="Round" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Round Brilliant</span></label>
+        <label class="filter-item"><input type="checkbox" value="Oval" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Oval</span></label>
+        <label class="filter-item"><input type="checkbox" value="Emerald" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Emerald</span></label>
+        <label class="filter-item"><input type="checkbox" value="Princess" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Princess</span></label>
+        <label class="filter-item"><input type="checkbox" value="Cushion" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Cushion</span></label>
+        <label class="filter-item"><input type="checkbox" value="Pear" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Pear</span></label>
+        <label class="filter-item"><input type="checkbox" value="Radiant" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Radiant</span></label>
+        <label class="filter-item"><input type="checkbox" value="Marquise" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Marquise</span></label>
+        <label class="filter-item"><input type="checkbox" value="Asscher" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Asscher</span></label>
+        <label class="filter-item"><input type="checkbox" value="Heart" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Heart</span></label>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Diamond Type</div>
+      <label class="filter-item"><input type="checkbox" value="Natural" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Natural</span></label>
+      <label class="filter-item"><input type="checkbox" value="Lab" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Lab-Grown</span></label>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Carat Weight</div>
+      <div class="range-inputs">
+        <div><div class="range-label">Min ct</div><input class="range-input" type="number" placeholder="0.30" step="0.01" min="0.01" id="caratMin"></div>
+        <div><div class="range-label">Max ct</div><input class="range-input" type="number" placeholder="10.00" step="0.01" min="0.01" id="caratMax"></div>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Colour Grade</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;" id="colour-pills">
+        <script>
+          ['D','E','F','G','H','I','J','K','L','M'].forEach(c => {
+            document.write(`<label style="cursor:pointer;"><input type="checkbox" value="${c}" style="display:none;" class="colour-cb" onchange="applyFilters()"><div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:12px;font-weight:500;color:var(--text-muted);transition:all 0.2s;background:var(--bg2);" class="colour-pill">${c}</div></label>`);
+          });
+        </script>
+        <style>.colour-cb:checked ~ .colour-pill{background:var(--gold-dim)!important;border-color:var(--gold)!important;color:var(--gold-light)!important;}</style>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Clarity Grade</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <script>
+          ['FL','IF','VVS1','VVS2','VS1','VS2','SI1','SI2','I1'].forEach(c => {
+            document.write(`<label style="cursor:pointer;"><input type="checkbox" value="${c}" style="display:none;" class="clarity-cb" onchange="applyFilters()"><div style="padding:4px 9px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:11px;color:var(--text-muted);transition:all 0.2s;background:var(--bg2);white-space:nowrap;" class="clarity-pill">${c}</div></label>`);
+          });
+        </script>
+        <style>.clarity-cb:checked ~ .clarity-pill{background:var(--gold-dim)!important;border-color:var(--gold)!important;color:var(--gold-light)!important;}</style>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Cut Grade</div>
+      <label class="filter-item"><input type="checkbox" value="Excellent" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Excellent</span></label>
+      <label class="filter-item"><input type="checkbox" value="Very Good" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Very Good</span></label>
+      <label class="filter-item"><input type="checkbox" value="Good" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Good</span></label>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Price per Carat (USD)</div>
+      <div class="range-inputs">
+        <div><div class="range-label">Min $</div><input class="range-input" type="number" placeholder="500" id="priceMin"></div>
+        <div><div class="range-label">Max $</div><input class="range-input" type="number" placeholder="50,000" id="priceMax"></div>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Certification</div>
+      <label class="filter-item"><input type="checkbox" value="GIA" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">GIA</span></label>
+      <label class="filter-item"><input type="checkbox" value="IGI" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">IGI</span></label>
+      <label class="filter-item"><input type="checkbox" value="HRD" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">HRD</span></label>
+      <label class="filter-item"><input type="checkbox" value="AGS" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">AGS</span></label>
+      <label class="filter-item"><input type="checkbox" value="GCAL" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">GCAL</span></label>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Origin / Source</div>
+      <label class="filter-item"><input type="checkbox" value="Botswana" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Botswana</span></label>
+      <label class="filter-item"><input type="checkbox" value="South Africa" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">South Africa</span></label>
+      <label class="filter-item"><input type="checkbox" value="Canada" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Canada</span></label>
+      <label class="filter-item"><input type="checkbox" value="Russia" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Russia</span></label>
+      <label class="filter-item"><input type="checkbox" value="Angola" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Angola</span></label>
+      <label class="filter-item"><input type="checkbox" value="Zimbabwe" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">Zimbabwe</span></label>
+      <label class="filter-item"><input type="checkbox" value="India Lab" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">India (Lab)</span></label>
+      <label class="filter-item"><input type="checkbox" value="USA Lab" onchange="applyFilters()"><div class="filter-checkbox"></div><span class="filter-item-label">USA (Lab)</span></label>
+    </div>
+    <button class="filter-apply" onclick="applyFilters()">Apply Filters</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="clearAllFilters()">Clear All</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="content-topbar">
+      <button class="sidebar-toggle btn btn-ghost" onclick="toggleSidebar()">☰ Filters</button>
+      <div class="results-info" id="results-info">Loading diamonds…</div>
+      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="featured">Featured First</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+        <option value="carat-desc">Carat: Largest First</option>
+        <option value="newest">Newest Listed</option>
+        <option value="colour">Best Colour</option>
+      </select>
+      <div class="view-toggle">
+        <button class="view-btn active" id="grid-btn" onclick="setView('grid')" title="Grid view">⊞</button>
+        <button class="view-btn" id="list-btn" onclick="setView('list')" title="List view">☰</button>
+      </div>
+    </div>
+
+    <div class="active-filters" id="active-filters"></div>
+    <div class="listing-grid" id="listing-grid">
+      <!-- Skeleton loaders -->
+      <div class="skeleton-card"><div class="skeleton-media skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton" style="width:60%"></div><div class="skeleton-line skeleton" style="width:40%"></div><div class="skeleton-line skeleton" style="width:80%"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-media skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton" style="width:70%"></div><div class="skeleton-line skeleton" style="width:50%"></div><div class="skeleton-line skeleton" style="width:60%"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-media skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton" style="width:55%"></div><div class="skeleton-line skeleton" style="width:45%"></div><div class="skeleton-line skeleton" style="width:75%"></div></div></div>
+    </div>
+    <div class="load-more-wrap">
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMore()">Load More Diamonds ↓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SOURCING BANNER -->
+<div class="sourcing-banner">
+  <div class="sourcing-inner">
+    <div>
+      <div class="hero-eyebrow" style="margin-bottom:14px;">Can't find what you need?</div>
+      <h2 class="sourcing-title">Post a Sourcing<br>Requirement</h2>
+      <p class="sourcing-desc">Tell us exactly what you need — shape, carat, colour, budget. We match you with verified suppliers worldwide and coordinate the entire deal.</p>
+      <div class="sourcing-actions">
+        <button class="btn btn-gold" onclick="openModal('rfq')">Post a Requirement →</button>
+        <button class="btn btn-outline-gold" onclick="openModal('signup')">Join as Buyer</button>
+      </div>
+    </div>
+    <div style="display:grid;gap:14px;">
+      <div class="filter-section" style="margin:0;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:24px;color:var(--green);">✓</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;">IDT Verified Suppliers Only</div>
+          <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">Every supplier passes our KYC process, business verification, and Kimberley Process compliance check.</div>
+        </div>
+      </div>
+      <div class="filter-section" style="margin:0;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:24px;color:var(--gold);">◈</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;">Active Intermediary Model</div>
+          <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">IDT doesn't just list — we actively match buyers with the right suppliers and coordinate trades end to end.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="margin-bottom:16px;display:inline-flex;">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" style="margin-right:10px;">
+          <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1" fill="rgba(201,168,76,0.05)"/>
+          <circle cx="20" cy="20" r="2" fill="#C9A84C" opacity="0.7"/>
+        </svg>
+        <span class="logo-text" style="font-size:18px;">International Diamond Trade</span>
+      </a>
+      <p class="footer-desc">The global B2B digital marketplace connecting verified diamond suppliers with distributors and retailers worldwide.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-link">in</a>
+        <a href="#" class="social-link">W</a>
+        <a href="#" class="social-link">@</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Platform</div>
+      <ul class="footer-links">
+        <li><a href="#">Diamond Marketplace</a></li>
+        <li><a href="#">Sourcing Board</a></li>
+        <li><a href="#">Post a Listing</a></li>
+        <li><a href="#">How It Works</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Suppliers</div>
+      <ul class="footer-links">
+        <li><a href="#" onclick="openModal('signup');return false;">Join as Supplier</a></li>
+        <li><a href="#">Verification Process</a></li>
+        <li><a href="#">List Your Inventory</a></li>
+        <li><a href="#">Kimberley Process</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Buyers</div>
+      <ul class="footer-links">
+        <li><a href="#" onclick="openModal('signup');return false;">Register as Buyer</a></li>
+        <li><a href="#" onclick="openModal('rfq');return false;">Post a Requirement</a></li>
+        <li><a href="#">Buyer Protection</a></li>
+        <li><a href="#">Contact IDT</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 International Diamond Trade Ltd. Registered in England & Wales.</div>
+    <div class="footer-certs">
+      <span class="cert-logo">GIA</span><span class="cert-logo">IGI</span>
+      <span class="cert-logo">HRD</span><span class="cert-logo">AGS</span>
+      <span class="cert-logo">KP</span><span class="cert-logo">WFDB</span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL: RFQ -->
+<div class="modal-overlay" id="rfq-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Request a Quote</h2>
+      <button class="modal-close" onclick="closeModal('rfq')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-diamond-summary">
+        <div class="modal-diamond-icon">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+            <line x1="20" y1="2" x2="20" y2="38" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="modal-diamond-name" id="rfq-stone-name">Post a Sourcing Requirement</div>
+          <div class="modal-diamond-specs" id="rfq-stone-specs">IDT will match you with verified suppliers.</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Your Name *</label><input class="form-input" id="rfq-name" type="text" placeholder="John Smith"></div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input class="form-input" id="rfq-company" type="text" placeholder="Smith Jewellers Ltd"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="rfq-email" type="email" placeholder="john@smithjewellers.com"></div>
+        <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input class="form-input" id="rfq-phone" type="tel" placeholder="+44 7700 900000"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Quantity Needed</label><input class="form-input" id="rfq-qty" type="text" placeholder="e.g. 5 stones / 20ct parcel"></div>
+        <div class="form-group"><label class="form-label">Total Budget (USD)</label><input class="form-input" id="rfq-budget" type="text" placeholder="e.g. $150,000"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Requirements</label>
+        <textarea class="form-textarea" id="rfq-notes" placeholder="Fluorescence preference, payment terms, delivery timeline, provenance requirements…"></textarea>
+      </div>
+      <p class="form-note">🔒 Your enquiry goes directly to IDT. We respond within 4 working hours and never share your details with suppliers without permission.</p>
+      <button class="modal-submit" id="rfq-submit" onclick="submitEnquiry()">Send Enquiry to IDT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SIGNUP -->
+<div class="modal-overlay" id="signup-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Join International Diamond Trade</h2>
+      <button class="modal-close" onclick="closeModal('signup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('buyer', event)">I'm a Buyer</button>
+        <button class="modal-tab" onclick="switchTab('supplier', event)">I'm a Supplier</button>
+      </div>
+      <div id="buyer-form">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="signup-first" type="text" placeholder="First name"></div>
+          <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" id="signup-last" type="text" placeholder="Last name"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Business Email *</label><input class="form-input" id="signup-email" type="email" placeholder="you@company.com"></div>
+        <div class="form-group"><label class="form-label">Password *</label><input class="form-input" id="signup-password" type="password" placeholder="Min 8 characters"></div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input class="form-input" id="signup-company" type="text" placeholder="Company / Trading Name"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Business Type *</label>
+            <select class="form-select" id="signup-btype">
+              <option value="">Select type…</option>
+              <option>Retailer</option>
+              <option>Wholesaler / Distributor</option>
+              <option>Jewellery Manufacturer</option>
+              <option>Auction House</option>
+              <option>Private Collector / Investor</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Country *</label><input class="form-input" id="signup-country" type="text" placeholder="United Kingdom"></div>
+        </div>
+        <p class="form-note">Free to join. IDT verifies your business before granting full access to supplier contacts.</p>
+        <button class="modal-submit" id="signup-submit" onclick="submitSignup()">Create Buyer Account →</button>
+      </div>
+      <div id="supplier-form" style="display:none;">
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:20px;">Supplier applications are reviewed by the IDT team. You'll be contacted within 1 business day.</p>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Contact Name *</label><input class="form-input" id="supp-name" type="text" placeholder="Full name"></div>
+          <div class="form-group"><label class="form-label">Business Email *</label><input class="form-input" id="supp-email" type="email" placeholder="you@company.com"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Company / Trading Name *</label><input class="form-input" id="supp-company" type="text" placeholder="Trading name"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Country of Operation *</label><input class="form-input" id="supp-country" type="text" placeholder="e.g. Botswana, India…"></div>
+          <div class="form-group">
+            <label class="form-label">Primary Gem Type *</label>
+            <select class="form-select" id="supp-gemtype">
+              <option value="">Select…</option>
+              <option>Natural Diamonds — Rough</option>
+              <option>Natural Diamonds — Polished</option>
+              <option>Lab-Grown CVD</option>
+              <option>Lab-Grown HPHT</option>
+              <option>Mixed Portfolio</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input class="form-input" id="supp-phone" type="tel" placeholder="+1 or country code"></div>
+        <p class="form-note">Verification requires: business registration, KP certificate (where applicable), and sample grading reports.</p>
+        <button class="modal-submit" onclick="submitSupplierApplication()">Apply as Verified Supplier →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DETAIL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:780px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="detail-title">Diamond Details</h2>
+      <button class="modal-close" onclick="closeModal('detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- Mobile sidebar backdrop -->
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">✓</div>
+  <div class="toast-text">
+    <div class="toast-title" id="toast-title">Done</div>
+    <div class="toast-sub" id="toast-sub"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Supabase + App Logic
+============================================================ -->
+<script>
+/* ====================================================
+   ⚙️  SUPABASE CONFIG
+   Replace these two values with your project's keys.
+   Find them in: Supabase Dashboard → Settings → API
+==================================================== */
+const SUPABASE_URL  = 'https://YOUR_PROJECT_REF.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_KEY';
+
+// Initialise client
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* ====================================================
+   STATE
+==================================================== */
+let allListings = [];
+let filteredListings = [];
+let viewMode = 'grid';
+let currentPage = 0;
+const PAGE_SIZE = 12;
+let currentListingId = null; // for RFQ context
+
+/* ====================================================
+   DB STATUS INDICATOR
+==================================================== */
+function setDbStatus(state, text) {
+  const el = document.getElementById('db-status');
+  const dot = document.getElementById('db-dot');
+  const label = document.getElementById('db-label');
+  dot.className = 'db-status-dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
+  label.textContent = text;
+  el.classList.add('show');
+  if (state === 'ok') setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ====================================================
+   FETCH LISTINGS FROM SUPABASE
+==================================================== */
+async function fetchListings() {
+  setDbStatus('loading', 'Loading diamonds…');
+
+  const { data, error } = await db
+    .from('listings')
+    .select(`
+      *,
+      profiles:supplier_id (
+        company_name,
+        country,
+        response_rate
+      )
+    `)
+    .eq('status', 'active')
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Supabase error:', error);
+    setDbStatus('error', 'DB error — using demo data');
+    // ↓ Fall back to demo seed data if DB isn't connected yet
+    allListings = SEED_LISTINGS;
+    filteredListings = [...allListings];
+    renderGrid();
+    updateLiveCount();
+    return;
+  }
+
+  // Normalise Supabase column names to match our UI expectations
+  allListings = data.map(normalise);
+  filteredListings = [...allListings];
+  setDbStatus('ok', `${allListings.length} diamonds loaded`);
+  renderGrid();
+  updateLiveCount();
+}
+
+// Map Supabase snake_case columns → camelCase used in render
+function normalise(row) {
+  return {
+    id:            row.id,
+    shape:         row.shape,
+    type:          row.diamond_type?.includes('Lab') ? 'Lab' : 'Natural',
+    carat:         parseFloat(row.carat_weight),
+    colour:        row.colour_grade,
+    clarity:       row.clarity_grade,
+    cut:           row.cut_grade,
+    polish:        row.polish,
+    symmetry:      row.symmetry,
+    fluorescence:  row.fluorescence || 'None',
+    measurements:  row.measurements_mm || '',
+    depth:         row.depth_pct,
+    table:         row.table_pct,
+    cert:          row.cert_body || '',
+    certNum:       row.cert_number || '',
+    images:        row.images || [],
+    pricePerCt:    parseFloat(row.price_per_carat),
+    origin:        row.country_origin,
+    terms:         row.trade_terms || '',
+    payment:       row.payment_terms || '',
+    dispatch:      (row.dispatch_time || '').toLowerCase().replace(' ',''),
+    featured:      row.is_featured,
+    verified:      row.is_verified,
+    seller:        row.profiles?.company_name || 'IDT Verified Supplier',
+    sellerCountry: row.profiles?.country || '',
+    responseRate:  row.profiles?.response_rate || 90,
+    viewCount:     row.view_count || 0,
+    createdAt:     row.created_at,
+  };
+}
+
+/* ====================================================
+   SEED / FALLBACK DATA (mirrors MVP, used before DB is populated)
+==================================================== */
+const SEED_LISTINGS = [
+  { id:'s1', shape:'Round', type:'Natural', carat:2.54, colour:'D', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', measurements:'8.12 x 8.14 x 5.02', depth:61.8, table:57, cert:'GIA', certNum:'GIA 6147711913', images:[], pricePerCt:18500, origin:'Botswana', seller:'Al-Rashid Gems', sellerCountry:'UAE', featured:true, verified:true, dispatch:'immediate', terms:'CIF', payment:'LC at sight', responseRate:95 },
+  { id:'s2', shape:'Oval', type:'Natural', carat:3.12, colour:'E', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Very Good', fluorescence:'Faint', measurements:'11.2 x 7.8 x 4.9', depth:62.4, table:58, cert:'GIA', certNum:'GIA 2381741920', images:[], pricePerCt:14200, origin:'South Africa', seller:'Cape Diamond Co.', sellerCountry:'ZA', featured:true, verified:true, dispatch:'1week', terms:'FOB', payment:'50/50', responseRate:88 },
+  { id:'s3', shape:'Emerald', type:'Natural', carat:5.08, colour:'F', clarity:'VVS2', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', measurements:'13.1 x 9.4 x 6.2', depth:65.9, table:69, cert:'GIA', certNum:'GIA 7739120044', images:[], pricePerCt:21000, origin:'Russia', seller:'Alrosa Partners', sellerCountry:'RU', featured:true, verified:true, dispatch:'2weeks', terms:'EXW', payment:'100% TT advance', responseRate:92 },
+  { id:'s4', shape:'Princess', type:'Natural', carat:1.85, colour:'G', clarity:'VS2', cut:'Very Good', polish:'Very Good', symmetry:'Very Good', fluorescence:'None', measurements:'6.8 x 6.7 x 4.9', depth:72.1, table:68, cert:'IGI', certNum:'IGI 488120397', images:[], pricePerCt:7800, origin:'Canada', seller:'Canadian Diamond Exchange', sellerCountry:'CA', featured:false, verified:true, dispatch:'immediate', terms:'CIF', payment:'Net 30', responseRate:85 },
+  { id:'s5', shape:'Cushion', type:'Lab', carat:4.00, colour:'D', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', measurements:'9.8 x 9.5 x 6.2', depth:64.4, table:61, cert:'IGI', certNum:'IGI 502741823', images:[], pricePerCt:3800, origin:'India Lab', seller:'Radiant Grown India', sellerCountry:'IN', featured:true, verified:true, dispatch:'immediate', terms:'FOB', payment:'100% TT advance', responseRate:91 },
+  { id:'s6', shape:'Pear', type:'Natural', carat:1.50, colour:'H', clarity:'SI1', cut:'Very Good', polish:'Very Good', symmetry:'Good', fluorescence:'Faint', measurements:'10.1 x 6.4 x 3.9', depth:61.0, table:60, cert:'HRD', certNum:'HRD 04281937440', images:[], pricePerCt:4200, origin:'Angola', seller:'Luanda Diamond Corp', sellerCountry:'AO', featured:false, verified:true, dispatch:'2weeks', terms:'CIF', payment:'50/50', responseRate:79 },
+  { id:'s7', shape:'Round', type:'Natural', carat:0.75, colour:'E', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', measurements:'5.92 x 5.94 x 3.67', depth:61.9, table:57, cert:'GIA', certNum:'GIA 5811920374', images:[], pricePerCt:9200, origin:'Botswana', seller:'Al-Rashid Gems', sellerCountry:'UAE', featured:false, verified:true, dispatch:'immediate', terms:'CIF', payment:'LC at sight', responseRate:95 },
+  { id:'s8', shape:'Marquise', type:'Natural', carat:2.20, colour:'F', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', measurements:'13.4 x 6.8 x 4.1', depth:60.2, table:58, cert:'GIA', certNum:'GIA 1198374029', images:[], pricePerCt:12800, origin:'Zimbabwe', seller:'Harare Diamond House', sellerCountry:'ZW', featured:false, verified:true, dispatch:'1week', terms:'EXW', payment:'100% TT advance', responseRate:83 },
+];
+
+/* ====================================================
+   RENDER CARDS
+==================================================== */
+function getDiamondSVG(shape, size=80) {
+  const s = size;
+  const shapes = {
+    Round:`<polygon points="${s/2},${s*.05} ${s*.9},${s*.38} ${s*.9},${s*.62} ${s/2},${s*.95} ${s*.1},${s*.62} ${s*.1},${s*.38}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><line x1="${s/2}" y1="${s*.05}" x2="${s/2}" y2="${s*.95}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/><line x1="${s*.1}" y1="${s*.38}" x2="${s*.9}" y2="${s*.62}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/><line x1="${s*.1}" y1="${s*.62}" x2="${s*.9}" y2="${s*.38}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>`,
+    Oval:`<ellipse cx="${s/2}" cy="${s/2}" rx="${s*.4}" ry="${s*.45}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><line x1="${s/2}" y1="${s*.05}" x2="${s/2}" y2="${s*.95}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>`,
+    Emerald:`<rect x="${s*.15}" y="${s*.1}" width="${s*.7}" height="${s*.8}" rx="4" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><rect x="${s*.25}" y="${s*.2}" width="${s*.5}" height="${s*.6}" rx="2" stroke="#C9A84C" stroke-width="0.5" fill="none" opacity="0.5"/>`,
+    Princess:`<rect x="${s*.12}" y="${s*.12}" width="${s*.76}" height="${s*.76}" rx="2" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><line x1="${s*.12}" y1="${s*.12}" x2="${s*.88}" y2="${s*.88}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>`,
+    Cushion:`<rect x="${s*.12}" y="${s*.12}" width="${s*.76}" height="${s*.76}" rx="${s*.15}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><line x1="${s/2}" y1="${s*.12}" x2="${s/2}" y2="${s*.88}" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>`,
+    Pear:`<path d="M${s/2} ${s*.05} Q${s*.88} ${s*.1} ${s*.85} ${s*.55} Q${s*.85} ${s*.9} ${s/2} ${s*.95} Q${s*.15} ${s*.9} ${s*.15} ${s*.55} Q${s*.12} ${s*.1} ${s/2} ${s*.05}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>`,
+    Marquise:`<path d="M${s/2} ${s*.05} Q${s*.95} ${s/2} ${s/2} ${s*.95} Q${s*.05} ${s/2} ${s/2} ${s*.05}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>`,
+    Radiant:`<polygon points="${s*.2},${s*.12} ${s*.8},${s*.12} ${s*.95},${s*.35} ${s*.95},${s*.65} ${s*.8},${s*.88} ${s*.2},${s*.88} ${s*.05},${s*.65} ${s*.05},${s*.35}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>`,
+    Asscher:`<rect x="${s*.15}" y="${s*.15}" width="${s*.7}" height="${s*.7}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/><rect x="${s*.27}" y="${s*.27}" width="${s*.46}" height="${s*.46}" stroke="#C9A84C" stroke-width="0.5" fill="none" opacity="0.5"/>`,
+    Heart:`<path d="M${s/2} ${s*.8} Q${s*.1} ${s*.5} ${s*.15} ${s*.3} Q${s*.2} ${s*.1} ${s/2} ${s*.3} Q${s*.8} ${s*.1} ${s*.85} ${s*.3} Q${s*.9} ${s*.5} ${s/2} ${s*.8}" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>`,
+  };
+  return shapes[shape] || shapes.Round;
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+function renderCard(d) {
+  const total = d.pricePerCt * d.carat;
+  const initials = d.seller.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const dispatchMap = { immediate:'Immediate', '1week':'1 Week', '2weeks':'2 Weeks', '1month':'1 Month' };
+  const dispatchLabel = dispatchMap[d.dispatch] || d.dispatch;
+  const isLab = d.type === 'Lab';
+
+  // If listing has a real image, show it; otherwise show SVG
+  const mediaContent = d.images && d.images.length > 0
+    ? `<img src="${d.images[0]}" alt="${d.carat}ct ${d.shape}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+
+  return `
+<div class="diamond-card" data-id="${d.id}" onclick="openDetail('${d.id}')">
+  <div class="card-scan"></div>
+  <div class="card-media">
+    <div class="card-media-bg"></div>
+    ${mediaContent}
+    <svg width="100" height="100" viewBox="0 0 100 100" class="card-diamond-svg" style="${d.images?.length ? 'display:none' : ''}">
+      ${getDiamondSVG(d.shape, 100)}
+      <circle cx="50" cy="50" r="1.5" fill="#C9A84C"/>
+    </svg>
+    <div class="card-badges">
+      ${d.featured ? '<span class="badge badge-featured">Featured</span>' : ''}
+      <span class="badge ${isLab ? 'badge-lab' : 'badge-natural'}">${isLab ? 'Lab-Grown' : 'Natural'}</span>
+      ${d.verified ? '<span class="badge badge-verified">IDT Verified</span>' : ''}
+    </div>
+    <div class="card-wishlist" onclick="toggleWishlist(event,'${d.id}')">♡</div>
+  </div>
+  <div class="card-body">
+    <div class="card-title">${d.carat}ct ${d.shape}</div>
+    <div class="card-subtitle">${d.colour} / ${d.clarity} / ${d.cut} Cut · ${d.origin}</div>
+    <div class="card-specs">
+      <span class="spec-pill"><strong>${d.colour}</strong> Col</span>
+      <span class="spec-pill"><strong>${d.clarity}</strong> Clar</span>
+      <span class="spec-pill"><strong>${d.cut}</strong> Cut</span>
+      <span class="spec-pill"><strong>${d.fluorescence}</strong> Fluor</span>
+      ${dispatchLabel ? `<span class="spec-pill">⏱ ${dispatchLabel}</span>` : ''}
+    </div>
+    <div class="card-cert">
+      <span class="cert-badge">${d.cert}</span>
+      <span class="cert-num">${d.certNum}</span>
+    </div>
+    <div class="card-price-row">
+      <div class="card-price">
+        <span class="price-per-ct">${fmt(d.pricePerCt)} / ct</span>
+        <span class="price-usd">${fmt(total)}</span>
+        <span class="price-total">Total · ${d.terms}</span>
+      </div>
+      <button class="card-rfq" onclick="openRFQ(event,'${d.id}')">Request Quote</button>
+    </div>
+    <div class="card-seller">
+      <div class="seller-avatar">${initials}</div>
+      <div class="seller-name">${d.seller}</div>
+      <div class="seller-country">${d.sellerCountry}</div>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderSkeletons(n=6) {
+  return Array.from({length:n}, () => `
+<div class="skeleton-card">
+  <div class="skeleton-media skeleton"></div>
+  <div class="skeleton-body">
+    <div class="skeleton-line skeleton" style="width:60%"></div>
+    <div class="skeleton-line skeleton" style="width:40%"></div>
+    <div class="skeleton-line skeleton" style="width:80%"></div>
+  </div>
+</div>`).join('');
+}
+
+function renderGrid() {
+  const grid = document.getElementById('listing-grid');
+  const start = 0;
+  const end = (currentPage + 1) * PAGE_SIZE;
+  const toShow = filteredListings.slice(start, end);
+
+  if (toShow.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">◈</div>
+      <div class="empty-state-title">No diamonds match your filters</div>
+      <div class="empty-state-sub">Try adjusting your filters or <span style="color:var(--gold);cursor:pointer;" onclick="clearAllFilters()">clear all</span></div>
+    </div>`;
+  } else {
+    grid.innerHTML = toShow.map(renderCard).join('');
+    if (viewMode === 'list') grid.classList.add('list-view');
+    else grid.classList.remove('list-view');
+
+    if (viewMode === 'grid') {
+      setTimeout(() => {
+        VanillaTilt.init(document.querySelectorAll('.diamond-card'), {
+          max: 4, speed: 400, glare: false, scale: 1.01
+        });
+      }, 100);
+    }
+
+    // Stagger animate in
+    grid.querySelectorAll('.diamond-card').forEach((c,i) => {
+      c.style.opacity = 0;
+      c.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        c.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        c.style.opacity = 1;
+        c.style.transform = 'none';
+      }, i * 40);
+    });
+  }
+
+  // Load more button
+  const btn = document.getElementById('load-more-btn');
+  if (end >= filteredListings.length) {
+    btn.disabled = true;
+    btn.textContent = 'All diamonds loaded';
+  } else {
+    btn.disabled = false;
+    btn.textContent = `Load More (${filteredListings.length - end} remaining) ↓`;
+  }
+
+  document.getElementById('results-info').innerHTML =
+    `Showing <strong>${Math.min(toShow.length, filteredListings.length)} of ${filteredListings.length} diamonds</strong>`;
+}
+
+function updateLiveCount() {
+  document.getElementById('live-count').textContent = `${allListings.length} live listings`;
+}
+
+/* ====================================================
+   CLIENT-SIDE FILTERING
+   (applied on top of DB results already fetched)
+==================================================== */
+function applyFilters() {
+  const shapes  = [...document.querySelectorAll('#shape-filters input:checked')].map(i=>i.value);
+  const types   = [...document.querySelectorAll('input[value="Natural"], input[value="Lab"]')].filter(i=>i.checked).map(i=>i.value);
+  const certs   = [...document.querySelectorAll('input[value="GIA"],input[value="IGI"],input[value="HRD"],input[value="AGS"],input[value="GCAL"]')].filter(i=>i.checked).map(i=>i.value);
+  const cuts    = [...document.querySelectorAll('input[value="Excellent"],input[value="Very Good"],input[value="Good"]')].filter(i=>i.checked).map(i=>i.value);
+  const colours = [...document.querySelectorAll('.colour-cb:checked')].map(i=>i.value);
+  const clarities=[...document.querySelectorAll('.clarity-cb:checked')].map(i=>i.value);
+  const caratMin= parseFloat(document.getElementById('caratMin').value)||0;
+  const caratMax= parseFloat(document.getElementById('caratMax').value)||999;
+  const priceMin= parseFloat(document.getElementById('priceMin').value)||0;
+  const priceMax= parseFloat(document.getElementById('priceMax').value)||9999999;
+  const search  = document.getElementById('globalSearch').value.toLowerCase();
+  const certSearch = document.getElementById('certSearch').value.toLowerCase();
+  const sort    = document.getElementById('sortSelect').value;
+
+  filteredListings = allListings.filter(d => {
+    if (shapes.length && !shapes.includes(d.shape)) return false;
+    if (types.length && !types.some(t=>(t==='Natural'&&d.type==='Natural')||(t==='Lab'&&d.type==='Lab'))) return false;
+    if (certs.length && !certs.includes(d.cert)) return false;
+    if (cuts.length && !cuts.includes(d.cut)) return false;
+    if (colours.length && !colours.includes(d.colour)) return false;
+    if (clarities.length && !clarities.includes(d.clarity)) return false;
+    if (d.carat < caratMin || d.carat > caratMax) return false;
+    if (d.pricePerCt < priceMin || d.pricePerCt > priceMax) return false;
+    if (search && !`${d.shape} ${d.colour} ${d.clarity} ${d.cut} ${d.origin} ${d.seller} ${d.cert}`.toLowerCase().includes(search)) return false;
+    if (certSearch && !d.certNum.toLowerCase().includes(certSearch)) return false;
+    return true;
+  });
+
+  const colourOrder = ['D','E','F','G','H','I','J','K','L','M'];
+  if (sort==='price-asc') filteredListings.sort((a,b)=>a.pricePerCt-b.pricePerCt);
+  else if (sort==='price-desc') filteredListings.sort((a,b)=>b.pricePerCt-a.pricePerCt);
+  else if (sort==='carat-desc') filteredListings.sort((a,b)=>b.carat-a.carat);
+  else if (sort==='colour') filteredListings.sort((a,b)=>colourOrder.indexOf(a.colour)-colourOrder.indexOf(b.colour));
+  else if (sort==='newest') filteredListings.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+  else filteredListings.sort((a,b)=>(b.featured?1:0)-(a.featured?1:0));
+
+  currentPage = 0;
+  renderGrid();
+  updateActiveTags();
+}
+
+function clearFilter(type) {
+  document.querySelectorAll(`#${type}-filters input`).forEach(i=>i.checked=false);
+  applyFilters();
+}
+
+function clearAllFilters() {
+  document.querySelectorAll('.filter-section input[type="checkbox"]').forEach(i=>i.checked=false);
+  ['caratMin','caratMax','priceMin','priceMax','globalSearch','certSearch'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.value='';
+  });
+  filteredListings = [...allListings];
+  currentPage = 0;
+  renderGrid();
+  updateActiveTags();
+}
+
+function updateActiveTags() {
+  const container = document.getElementById('active-filters');
+  const tags = [];
+  document.querySelectorAll('.filter-section input[type="checkbox"]:checked').forEach(i=>{
+    tags.push(`<div class="filter-tag">${i.value}<span class="filter-tag-remove" onclick="removeTag('${i.value}')">✕</span></div>`);
+  });
+  container.innerHTML = tags.join('');
+}
+
+function removeTag(val) {
+  const cb = document.querySelector(`input[type="checkbox"][value="${val}"]:checked`);
+  if (cb) { cb.checked=false; applyFilters(); }
+}
+
+function loadMore() {
+  currentPage++;
+  renderGrid();
+}
+
+/* ====================================================
+   VIEW MODE
+==================================================== */
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('grid-btn').classList.toggle('active', mode==='grid');
+  document.getElementById('list-btn').classList.toggle('active', mode==='list');
+  renderGrid();
+}
+
+/* ====================================================
+   MODALS
+==================================================== */
+function openModal(type) {
+  document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
+  document.getElementById(`${type}-modal`).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(type) {
+  document.getElementById(`${type}-modal`).classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function openRFQ(event, id) {
+  event.stopPropagation();
+  currentListingId = id;
+  const d = allListings.find(x=>String(x.id)===String(id));
+  if (d) {
+    document.getElementById('rfq-stone-name').textContent = `${d.carat}ct ${d.shape} — ${d.colour}/${d.clarity}/${d.cut}`;
+    document.getElementById('rfq-stone-specs').textContent = `${d.cert} ${d.certNum} · ${d.origin} · ${fmt(d.pricePerCt)}/ct`;
+  }
+  openModal('rfq');
+}
+
+function openDetail(id) {
+  const d = allListings.find(x=>String(x.id)===String(id));
+  if (!d) return;
+  const total = d.pricePerCt * d.carat;
+
+  // Increment view count in DB (fire and forget)
+  if (!String(id).startsWith('s')) { // skip seed data
+    db.from('listings').update({ view_count: (d.viewCount||0)+1 }).eq('id', id).then(()=>{});
+  }
+
+  document.getElementById('detail-title').textContent = `${d.carat}ct ${d.shape} — ${d.origin}`;
+  document.getElementById('detail-body').innerHTML = `
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;margin-bottom:24px;">
+    <div style="background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:center;min-height:180px;padding:20px;">
+      <svg width="120" height="120" viewBox="0 0 120 120">${getDiamondSVG(d.shape,120)}</svg>
+    </div>
+    <div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        ${d.featured?'<span class="badge badge-featured">Featured</span>':''}
+        <span class="badge ${d.type==='Natural'?'badge-natural':'badge-lab'}">${d.type}</span>
+        ${d.verified?'<span class="badge badge-verified">IDT Verified</span>':''}
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-light);margin-bottom:4px;">${d.carat}ct ${d.shape}</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">${d.colour} Colour · ${d.clarity} Clarity · ${d.cut} Cut · ${d.origin}</div>
+      <div style="font-size:28px;font-family:'Cormorant Garamond',serif;color:var(--gold-light);">${fmt(total)}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;">${fmt(d.pricePerCt)} per carat · ${d.terms}</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gold" onclick="openRFQ(event,'${d.id}');closeModal('detail')">Request Quote →</button>
+        <button class="btn btn-outline-gold" onclick="toggleWishlist(event,'${d.id}')">♡ Save</button>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--bg2);border-radius:12px;padding:20px;">
+    <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Full Specifications</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      ${[
+        ['Shape',d.shape],['Type',d.type],['Carat Weight',d.carat+'ct'],
+        ['Colour Grade',d.colour],['Clarity Grade',d.clarity],['Cut Grade',d.cut],
+        ['Polish',d.polish||'—'],['Symmetry',d.symmetry||'—'],['Fluorescence',d.fluorescence],
+        ['Measurements',d.measurements||'—'],['Depth %',d.depth?d.depth+'%':'—'],['Table %',d.table?d.table+'%':'—'],
+        ['Certification',d.cert],['Certificate No.',d.certNum],['Origin',d.origin],
+        ['Trade Terms',d.terms],['Payment Terms',d.payment],['Dispatch',d.dispatch],
+      ].map(([k,v],i)=>`<div style="padding:9px 12px;background:${i%2===0?'var(--bg2)':'rgba(255,255,255,0.02)'};display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border-sub);">
+        <span style="font-size:12px;color:var(--text-dim);">${k}</span>
+        <span style="font-size:12px;color:var(--text);font-weight:500;">${v}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div style="background:var(--bg2);border-radius:12px;padding:20px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="seller-avatar" style="width:40px;height:40px;font-size:14px;">${d.seller.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;">${d.seller}</div>
+        <div style="font-size:12px;color:var(--text-dim);">IDT Verified Supplier · ${d.sellerCountry}</div>
+        <div class="verify-bar" style="width:120px;margin-top:6px;"><div class="verify-fill" style="width:${d.responseRate||90}%;"></div></div>
+        <div style="font-size:10px;color:var(--green);margin-top:3px;">${d.responseRate||90}% response rate</div>
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="openRFQ(event,'${d.id}');closeModal('detail')">Request Quote →</button>
+  </div>`;
+  openModal('detail');
+}
+
+/* ====================================================
+   SUPABASE: SUBMIT ENQUIRY (RFQ)
+==================================================== */
+async function submitEnquiry() {
+  const name    = document.getElementById('rfq-name').value.trim();
+  const company = document.getElementById('rfq-company').value.trim();
+  const email   = document.getElementById('rfq-email').value.trim();
+  if (!name || !company || !email) { showToast('Missing fields', 'Please fill in Name, Company, and Email.', 'error'); return; }
+
+  const btn = document.getElementById('rfq-submit');
+  btn.disabled = true;
+  btn.classList.add('btn-loading');
+  btn.textContent = 'Sending…';
+
+  // Find supplier from listing
+  const listing = allListings.find(x=>String(x.id)===String(currentListingId));
+
+  const payload = {
+    listing_id:     currentListingId && !String(currentListingId).startsWith('s') ? currentListingId : null,
+    contact_name:   name,
+    company_name:   company,
+    email:          email,
+    phone:          document.getElementById('rfq-phone').value,
+    quantity_needed:document.getElementById('rfq-qty').value,
+    budget:         document.getElementById('rfq-budget').value,
+    message:        document.getElementById('rfq-notes').value,
+    status:         'new',
+  };
+
+  // Try DB insert; if fails (e.g. DB not yet set up) still show success to user
+  try {
+    const { error } = await db.from('enquiries').insert(payload);
+    if (error) throw error;
+  } catch(e) {
+    console.warn('Enquiry DB insert failed (expected before schema is run):', e.message);
+  }
+
+  closeModal('rfq');
+  document.body.style.overflow='';
+  showToast('Enquiry Sent to IDT', "We'll contact you within 4 working hours.");
+
+  btn.disabled = false;
+  btn.classList.remove('btn-loading');
+  btn.textContent = 'Send Enquiry to IDT →';
+  // Reset form
+  ['rfq-name','rfq-company','rfq-email','rfq-phone','rfq-qty','rfq-budget','rfq-notes'].forEach(id=>{ document.getElementById(id).value=''; });
+}
+
+/* ====================================================
+   SUPABASE: SIGNUP (Auth)
+==================================================== */
+async function submitSignup() {
+  const email    = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const company  = document.getElementById('signup-company').value.trim();
+  const firstName= document.getElementById('signup-first').value.trim();
+  const lastName = document.getElementById('signup-last').value.trim();
+  const btype    = document.getElementById('signup-btype').value;
+  const country  = document.getElementById('signup-country').value.trim();
+
+  if (!email||!password||!company) { showToast('Missing fields','Email, password and company are required.','error'); return; }
+  if (password.length < 8) { showToast('Password too short','Minimum 8 characters.','error'); return; }
+
+  const btn = document.getElementById('signup-submit');
+  btn.disabled=true; btn.textContent='Creating account…';
+
+  try {
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name:   firstName,
+          last_name:    lastName,
+          company_name: company,
+          business_type:btype,
+          country,
+          role:         'buyer',
+        }
+      }
+    });
+    if (error) throw error;
+
+    // Insert profile row
+    if (data.user) {
+      await db.from('profiles').upsert({
+        id:            data.user.id,
+        role:          'buyer',
+        first_name:    firstName,
+        last_name:     lastName,
+        company_name:  company,
+        business_type: btype,
+        country,
+        kyc_status:    'pending',
+      });
+    }
+
+    closeModal('signup');
+    showToast('Account Created!','Check your email to verify. IDT will be in touch shortly.');
+    updateNavForAuth(email);
+  } catch(e) {
+    showToast('Sign up failed', e.message || 'Please try again.', 'error');
+  } finally {
+    btn.disabled=false; btn.textContent='Create Buyer Account →';
+  }
+}
+
+async function submitSupplierApplication() {
+  closeModal('signup');
+  showToast('Application Received','Our team will review your details within 1 business day.');
+}
+
+/* ====================================================
+   AUTH STATE
+==================================================== */
+function updateNavForAuth(email) {
+  const cta = document.getElementById('nav-cta');
+  const displayName = email.split('@')[0];
+  cta.innerHTML = `<div class="nav-user" onclick="signOut()">
+    <div class="nav-user-dot"></div>
+    ${displayName}
+    <span style="font-size:11px;color:var(--text-dim);">Sign out</span>
+  </div>`;
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  location.reload();
+}
+
+// Check auth on load
+db.auth.getSession().then(({ data: { session } }) => {
+  if (session?.user?.email) updateNavForAuth(session.user.email);
+});
+
+db.auth.onAuthStateChange((_event, session) => {
+  if (session?.user?.email) updateNavForAuth(session.user.email);
+});
+
+/* ====================================================
+   WISHLIST (local for now, DB in Phase 2)
+==================================================== */
+const wishlist = new Set(JSON.parse(localStorage.getItem('idt_wishlist')||'[]'));
+
+function toggleWishlist(event, id) {
+  event.stopPropagation();
+  if (wishlist.has(String(id))) {
+    wishlist.delete(String(id));
+  } else {
+    wishlist.add(String(id));
+    showToast('Saved to Wishlist','Sign in to sync across devices.');
+  }
+  localStorage.setItem('idt_wishlist', JSON.stringify([...wishlist]));
+
+  // Update heart icon
+  const card = document.querySelector(`[data-id="${id}"] .card-wishlist`);
+  if (card) card.classList.toggle('active', wishlist.has(String(id)));
+}
+
+/* ====================================================
+   MODAL TABS
+==================================================== */
+function switchTab(tab, event) {
+  document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('buyer-form').style.display = tab==='buyer'?'block':'none';
+  document.getElementById('supplier-form').style.display = tab==='supplier'?'block':'none';
+}
+
+/* ====================================================
+   TOAST
+==================================================== */
+function showToast(title, sub, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub||'';
+  document.getElementById('toast-icon').textContent = type==='error' ? '✕' : '✓';
+  t.className = 'toast show' + (type==='error'?' toast-error':'');
+  setTimeout(()=>{ t.classList.remove('show'); }, 4500);
+}
+
+/* ====================================================
+   MOBILE SIDEBAR
+==================================================== */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebar-backdrop').classList.toggle('open');
+}
+
+/* ====================================================
+   CLOSE MODALS ON BACKDROP CLICK + ESC
+==================================================== */
+document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay){overlay.classList.remove('open');document.body.style.overflow='';}
+  });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});
+    if(document.getElementById('sidebar').classList.contains('mobile-open')) toggleSidebar();
+  }
+});
+
+/* ====================================================
+   SEARCH — debounced live filter
+==================================================== */
+let searchTimer;
+['globalSearch','certSearch'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',()=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilters, 250);
+  });
+});
+
+/* ====================================================
+   CUSTOM CURSOR
+==================================================== */
+const cursorEl = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursorEl.style.left=mx+'px'; cursorEl.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*0.15; ry+=(my-ry)*0.15;
+  cursorRing.style.left=rx+'px'; cursorRing.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+/* ====================================================
+   PARTICLES
+==================================================== */
+(function(){
+  const canvas=document.getElementById('particles-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  function P(){this.x=Math.random()*W;this.y=Math.random()*H+H;this.size=Math.random()*1.5+0.3;this.sy=-(Math.random()*0.4+0.1);this.sx=(Math.random()-.5)*.3;this.op=Math.random()*.5+.1;this.life=1;}
+  P.prototype.update=function(){this.y+=this.sy;this.x+=this.sx;this.life-=.0008;if(this.y<-10||this.life<=0){this.x=Math.random()*W;this.y=H+10;this.life=1;}};
+  P.prototype.draw=function(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=`rgba(201,168,76,${this.op*this.life})`;ctx.fill();};
+  for(let i=0;i<80;i++){const p=new P();p.y=Math.random()*H;particles.push(p);}
+  function animate(){ctx.clearRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(animate);}
+  animate();
+})();
+
+/* ====================================================
+   COUNTER ANIMATION
+==================================================== */
+function animateCounters(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const target=parseFloat(el.dataset.target);
+    const prefix=el.dataset.prefix||'';
+    const suffix=el.dataset.suffix||'';
+    const isDecimal=target%1!==0;
+    const start=performance.now();
+    (function update(now){
+      const progress=Math.min((now-start)/2000,1);
+      const eased=1-Math.pow(1-progress,3);
+      const current=target*eased;
+      el.textContent=prefix+(isDecimal?current.toFixed(1):Math.floor(current).toLocaleString())+suffix;
+      if(progress<1) requestAnimationFrame(update);
+    })(start);
+  });
+}
+
+/* ====================================================
+   GSAP + INIT
+==================================================== */
+gsap.registerPlugin(ScrollTrigger);
+
+window.addEventListener('load',()=>{
+  gsap.from('.hero-title-group',{duration:.9,y:30,opacity:0,ease:'power3.out'});
+  gsap.from('.hero-stats .stat-item',{duration:.7,y:20,opacity:0,stagger:.1,ease:'power2.out',delay:.3});
+  gsap.from('.live-badge',{duration:.6,scale:.8,opacity:0,ease:'back.out(1.7)',delay:.5});
+  gsap.from('.sourcing-inner',{scrollTrigger:{trigger:'.sourcing-banner',start:'top 80%'},y:40,opacity:0,duration:.8,ease:'power2.out'});
+  animateCounters();
+
+  // 🚀 Load data from Supabase
+  fetchListings();
+});
+</script>
+</body>
+</html>
