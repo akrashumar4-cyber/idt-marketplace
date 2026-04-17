@@ -2126,6 +2126,17 @@ async function submitEnquiry() {
     console.warn('Enquiry DB insert failed (expected before schema is run):', e.message);
   }
 
+  // Send to Make → GHL
+  try {
+    await fetch('https://hook.eu1.make.com/ugnx3w95f48fhf2c4i3zz8c95f5e534l', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    console.warn('Make webhook failed:', e.message);
+  }
+
   closeModal('rfq');
   document.body.style.overflow='';
   showToast('Enquiry Sent to IDT', "We'll contact you within 4 working hours.");
