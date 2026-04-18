@@ -1656,7 +1656,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 (async () => {
   const { data: { session } } = await db.auth.getSession();
   if (!session) {
-    window.location.replace('https://www.internationaldiamondtrade.com/join');
+    window.location.replace('https://www.internationaldiamondtrade.com/join.html');
   }
 })();
 
