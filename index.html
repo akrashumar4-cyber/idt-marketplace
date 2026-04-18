@@ -1249,6 +1249,7 @@ body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 48p
   <div class="nav-cta-group" id="nav-cta">
     <button class="btn btn-ghost" onclick="openModal('signup')">Login</button>
     <button class="btn btn-gold" onclick="openModal('signup')">Join Free →</button>
+    <button class="btn btn-ghost" onclick="handleLogout()" style="border-color:rgba(201,168,76,0.4);margin-left:8px;">Logout</button>
   </div>
 </nav>
 
@@ -1641,8 +1642,6 @@ body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 48p
 <script>
 /* ====================================================
    ⚙️  SUPABASE CONFIG
-   Replace these two values with your project's keys.
-   Find them in: Supabase Dashboard → Settings → API
 ==================================================== */
 const SUPABASE_URL  = 'https://hlmdkhixdrowbnxgbuvy.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRraGl4ZHJvd2JueGdidXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDIzMjQsImV4cCI6MjA5MjAxODMyNH0.2QOyrIHHReHH2prRCP78UcO1I3oCqauKpn_0pjpP7W8';
@@ -1650,6 +1649,21 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 // Initialise client
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* ====================================================
+   AUTH GUARD — redirect unauthenticated visitors
+==================================================== */
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    window.location.replace('https://pages.internationaldiamondtrade.com/register-buyer');
+  }
+})();
+
+async function handleLogout() {
+  await db.auth.signOut();
+  window.location.replace('https://internationaldiamondtrade.com');
+}
 
 /* ====================================================
    STATE
