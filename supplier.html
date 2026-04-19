@@ -397,6 +397,11 @@ document.getElementById('logout-btn').addEventListener('click', handleLogout);
     return;
   }
 
+  if (profile?.role === 'admin') {
+    window.location.replace('/admin');
+    return;
+  }
+
   const name = profile?.company_name || session.user.email;
   document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
 

@@ -1656,13 +1656,13 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 (async () => {
   const { data: { session } } = await db.auth.getSession();
   if (!session) {
-    window.location.replace('https://www.internationaldiamondtrade.com/login.html');
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
   }
 })();
 
 async function handleLogout() {
   await db.auth.signOut();
-  window.location.replace('https://internationaldiamondtrade.com');
+  window.location.replace('https://internationaldiamondtrade.com/login.html');
 }
 
 /* ====================================================
