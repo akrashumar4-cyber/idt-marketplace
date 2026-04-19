@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/join",      "destination": "/join.html"      },
     { "source": "/buyer",     "destination": "/buyer.html"     },
-    { "source": "/supplier",  "destination": "/supplier.html"  }
+    { "source": "/supplier",  "destination": "/supplier.html"  },
+    { "source": "/admin",     "destination": "/admin.html"     }
   ]
 }
