@@ -390,19 +390,20 @@ document.getElementById('logout-btn').addEventListener('click', handleLogout);
     return;
   }
 
-  // Check role
   const { data: profile } = await db
     .from('profiles')
     .select('role, company_name')
     .eq('id', session.user.id)
     .single();
 
-  if (profile?.role === 'supplier') {
+  const role = session.user.user_metadata?.role || profile?.role;
+
+  if (role === 'supplier') {
     window.location.replace('/supplier');
     return;
   }
 
-  if (profile?.role === 'admin') {
+  if (role === 'admin') {
     window.location.replace('/admin');
     return;
   }

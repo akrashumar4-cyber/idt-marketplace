@@ -613,8 +613,10 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
     .eq('id', session.user.id)
     .single();
 
-  if (!profile || profile.role !== 'admin') {
-    const dest = profile?.role === 'supplier' ? '/supplier' : '/buyer';
+  const role = session.user.user_metadata?.role || profile?.role;
+
+  if (role !== 'admin') {
+    const dest = role === 'supplier' ? '/supplier' : '/buyer';
     window.location.replace(dest);
     return;
   }

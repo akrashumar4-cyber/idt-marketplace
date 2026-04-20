@@ -392,12 +392,14 @@ document.getElementById('logout-btn').addEventListener('click', handleLogout);
     .eq('id', session.user.id)
     .single();
 
-  if (profile?.role === 'buyer') {
+  const role = session.user.user_metadata?.role || profile?.role;
+
+  if (role === 'buyer') {
     window.location.replace('/buyer');
     return;
   }
 
-  if (profile?.role === 'admin') {
+  if (role === 'admin') {
     window.location.replace('/admin');
     return;
   }
