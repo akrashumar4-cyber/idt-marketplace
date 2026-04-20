@@ -378,30 +378,20 @@ async function handleLogout() {
 
 document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-async function waitForSession() {
-  for (let i = 0; i < 10; i++) {
-    const { data: { session } } = await db.auth.getSession();
-    if (session) return session;
-    await new Promise(r => setTimeout(r, 200));
-  }
-  return null;
-}
-
 (async () => {
-  const session = await waitForSession();
+  const { data: { session } } = await db.auth.getSession();
 
-  if (!session) {
-    window.location.replace('https://internationaldiamondtrade.com/login.html');
-    return;
+  let profile = null;
+  if (session) {
+    const { data } = await db
+      .from('profiles')
+      .select('role, company_name')
+      .eq('id', session.user.id)
+      .single();
+    profile = data;
   }
 
-  const { data: profile } = await db
-    .from('profiles')
-    .select('role, company_name')
-    .eq('id', session.user.id)
-    .single();
-
-  const role = session.user.user_metadata?.role || profile?.role;
+  const role = session?.user?.user_metadata?.role || profile?.role;
 
   if (role === 'buyer') {
     window.location.replace('/buyer');
@@ -413,7 +403,7 @@ async function waitForSession() {
     return;
   }
 
-  const name = profile?.company_name || session.user.email;
+  const name = profile?.company_name || session?.user?.email || 'Guest';
   document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
 
   document.body.classList.add('ready');
