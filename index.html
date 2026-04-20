@@ -58,8 +58,17 @@ const db = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRraGl4ZHJvd2JueGdidXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDIzMjQsImV4cCI6MjA5MjAxODMyNH0.2QOyrIHHReHH2prRCP78UcO1I3oCqauKpn_0pjpP7W8'
 );
 
+async function waitForSession() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
 (async () => {
-  const { data: { session } } = await db.auth.getSession();
+  const session = await waitForSession();
 
   if (!session) {
     window.location.replace('https://internationaldiamondtrade.com/login.html');

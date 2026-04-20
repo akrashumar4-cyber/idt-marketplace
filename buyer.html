@@ -382,8 +382,17 @@ async function handleLogout() {
 
 document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
+async function waitForSession() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
 (async () => {
-  const { data: { session } } = await db.auth.getSession();
+  const session = await waitForSession();
 
   if (!session) {
     window.location.replace('https://internationaldiamondtrade.com/login.html');
