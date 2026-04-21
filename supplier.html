@@ -403,7 +403,7 @@ async function getSessionWithRetry() {
 
   const role = session.user.user_metadata?.role || profile?.role;
 
-  if (window.location.pathname === '/supplier' && role !== 'supplier') {
+  if (role && window.location.pathname === '/supplier' && role !== 'supplier') {
     window.location.replace('/buyer');
     return;
   }

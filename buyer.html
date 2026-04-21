@@ -407,12 +407,12 @@ async function getSessionWithRetry() {
 
   const role = session.user.user_metadata?.role || profile?.role;
 
-  if (window.location.pathname === '/buyer' && role === 'supplier') {
+  if (role && window.location.pathname === '/buyer' && role === 'supplier') {
     window.location.replace('/supplier');
     return;
   }
 
-  if (window.location.pathname === '/buyer' && role === 'admin') {
+  if (role && window.location.pathname === '/buyer' && role === 'admin') {
     window.location.replace('/admin');
     return;
   }

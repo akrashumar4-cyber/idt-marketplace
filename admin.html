@@ -624,7 +624,7 @@ async function getSessionWithRetry() {
 
   const role = session.user.user_metadata?.role || profile?.role;
 
-  if (window.location.pathname === '/admin' && role !== 'admin') {
+  if (role && window.location.pathname === '/admin' && role !== 'admin') {
     window.location.replace('/buyer');
     return;
   }
