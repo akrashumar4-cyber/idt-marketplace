@@ -387,6 +387,27 @@ async function getSessionWithRetry() {
   return null;
 }
 
+async function getRoleWithRetry(session) {
+  for (let i = 0; i < 10; i++) {
+    let role = session.user.user_metadata?.role;
+
+    if (!role) {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      role = profile?.role;
+    }
+
+    if (role) return role;
+
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
 (async () => {
   const session = await getSessionWithRetry();
 
@@ -395,20 +416,18 @@ async function getSessionWithRetry() {
     return;
   }
 
-  const { data: profile } = await db
-    .from('profiles')
-    .select('role, company_name')
-    .eq('id', session.user.id)
-    .single();
-
-  let role = session.user.user_metadata?.role;
-  if (!role) role = profile?.role;
+  const role = await getRoleWithRetry(session);
 
   if (!role) {
-    console.warn('Role not resolved yet');
-    document.body.classList.add('ready');
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
     return;
   }
+
+  const { data: profile } = await db
+    .from('profiles')
+    .select('company_name')
+    .eq('id', session.user.id)
+    .single();
 
   if (role && window.location.pathname === '/supplier' && role !== 'supplier') {
     window.location.replace('/buyer');
