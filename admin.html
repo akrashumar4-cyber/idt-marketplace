@@ -599,9 +599,36 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   window.location.replace('https://internationaldiamondtrade.com/login.html');
 });
 
-// Auth guard removed — page loads publicly
-// Supabase RLS still protects all data queries from unauthenticated access
+async function getSessionWithRetry() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
 (async () => {
+  const session = await getSessionWithRetry();
+
+  if (!session) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
+  }
+
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, company_name')
+    .eq('id', session.user.id)
+    .single();
+
+  const role = session.user.user_metadata?.role || profile?.role;
+
+  if (window.location.pathname === '/admin' && role !== 'admin') {
+    window.location.replace('/buyer');
+    return;
+  }
+
   document.body.classList.add('ready');
   loadStats();
   loadUsers();

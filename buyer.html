@@ -382,36 +382,44 @@ async function handleLogout() {
 
 document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-(async () => {
-  const { data: { session } } = await db.auth.getSession();
+async function getSessionWithRetry() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
 
-  let profile = null;
-  if (session) {
-    const { data } = await db
-      .from('profiles')
-      .select('role, company_name')
-      .eq('id', session.user.id)
-      .single();
-    profile = data;
+(async () => {
+  const session = await getSessionWithRetry();
+
+  if (!session) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
   }
 
-  const role = session?.user?.user_metadata?.role || profile?.role;
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, company_name')
+    .eq('id', session.user.id)
+    .single();
 
-  if (role === 'supplier') {
+  const role = session.user.user_metadata?.role || profile?.role;
+
+  if (window.location.pathname === '/buyer' && role === 'supplier') {
     window.location.replace('/supplier');
     return;
   }
 
-  if (role === 'admin') {
+  if (window.location.pathname === '/buyer' && role === 'admin') {
     window.location.replace('/admin');
     return;
   }
 
-  // Set welcome name
-  const name = profile?.company_name || session?.user?.email || 'Guest';
+  const name = profile?.company_name || session.user.email || 'Guest';
   document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
 
-  // Reveal page
   document.body.classList.add('ready');
 })();
 </script>
