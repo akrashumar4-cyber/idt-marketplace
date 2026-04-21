@@ -405,7 +405,14 @@ async function getSessionWithRetry() {
     .eq('id', session.user.id)
     .single();
 
-  const role = session.user.user_metadata?.role || profile?.role;
+  let role = session.user.user_metadata?.role;
+  if (!role) role = profile?.role;
+
+  if (!role) {
+    console.warn('Role not resolved yet');
+    document.body.classList.add('ready');
+    return;
+  }
 
   if (role && window.location.pathname === '/buyer' && role === 'supplier') {
     window.location.replace('/supplier');
