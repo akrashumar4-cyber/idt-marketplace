@@ -433,13 +433,13 @@ async function getRoleWithRetry(session) {
     .eq('id', session.user.id)
     .single();
 
-  if (role && window.location.pathname === '/buyer' && role === 'supplier') {
-    window.location.replace('/supplier');
+  if (role && window.location.pathname === '/buyer.html' && role === 'supplier') {
+    window.location.replace('/supplier.html');
     return;
   }
 
-  if (role && window.location.pathname === '/buyer' && role === 'admin') {
-    window.location.replace('/admin');
+  if (role && window.location.pathname === '/buyer.html' && role === 'admin') {
+    window.location.replace('/admin.html');
     return;
   }
 

@@ -78,11 +78,11 @@ async function getSessionWithRetry() {
   const role = session.user.user_metadata?.role;
 
   if (role === 'admin') {
-    window.location.replace('/admin');
+    window.location.replace('/admin.html');
   } else if (role === 'supplier') {
-    window.location.replace('/supplier');
+    window.location.replace('/supplier.html');
   } else {
-    window.location.replace('/buyer');
+    window.location.replace('/buyer.html');
   }
 })();
 </script>

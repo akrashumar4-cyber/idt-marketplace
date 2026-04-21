@@ -429,8 +429,8 @@ async function getRoleWithRetry(session) {
     .eq('id', session.user.id)
     .single();
 
-  if (role && window.location.pathname === '/supplier' && role !== 'supplier') {
-    window.location.replace('/buyer');
+  if (role && window.location.pathname === '/supplier.html' && role !== 'supplier') {
+    window.location.replace('/buyer.html');
     return;
   }
 
